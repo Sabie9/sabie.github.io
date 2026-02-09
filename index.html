@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Somparna ❤️</title>
+    <style>
+        /* --- Reset & Base Styles --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffe4e6; /* Pastel Pink */
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Prevent scrolling */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* --- Floating Hearts Background --- */
+        .heart-bg {
+            position: absolute;
+            color: rgba(255, 182, 193, 0.6);
+            animation: floatUp linear infinite;
+            z-index: 0;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            20% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+
+        /* --- Main Container --- */
+        .container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #db2777; /* Deep Pink */
+            font-size: 2rem;
+            margin-bottom: 40px;
+            line-height: 1.4;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+        }
+
+        /* --- Buttons --- */
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            min-height: 60px; /* Space for buttons */
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s ease, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #yesBtn {
+            background-color: #e11d48; /* Red/Pink */
+            color: white;
+            z-index: 20; /* Keep on top */
+        }
+
+        #noBtn {
+            background-color: #ffffff;
+            color: #9ca3af;
+            border: 2px solid #e5e7eb;
+            position: relative; /* Starts relative, becomes absolute on hover */
+            transition: all 0.3s ease-out; /* Smooth movement */
+            z-index: 15;
+        }
+
+        /* --- Celebration Screen --- */
+        #celebration {
+            display: none; /* Hidden by default */
+            text-align: center;
+            animation: fadeIn 1s ease;
+        }
+
+        .celebration-text {
+            font-size: 2.5rem;
+            color: #e11d48;
+            margin-bottom: 10px;
+        }
+
+        .signature {
+            font-size: 1.5rem;
+            color: #db2777;
+            font-style: italic;
+            margin-top: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* --- Confetti --- */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(720deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="bg-container"></div>
+
+    <div class="container" id="proposal-screen">
+        <h1 id="question-text">Somparna, will you be my Valentine and marry me 🥹?</h1>
+        
+        <div class="btn-group">
+            <button id="yesBtn">Yes</button>
+            <button id="noBtn">No</button>
+        </div>
+    </div>
+
+    <div class="container" id="celebration">
+        <div class="celebration-text">That was the correct answer 💖</div>
+        <div class="signature">With love, Saayan</div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const questionText = document.getElementById('question-text');
+        const proposalScreen = document.getElementById('proposal-screen');
+        const celebrationScreen = document.getElementById('celebration');
+        const bgContainer = document.getElementById('bg-container');
+
+        let yesScale = 1;
+
+        // --- Background Hearts Animation ---
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-bg');
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 3 + 4 + 's'; // 4-7s
+            heart.style.fontSize = Math.random() * 20 + 20 + 'px';
+            bgContainer.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 7000);
+        }
+        setInterval(createHeart, 400);
+
+        // --- "No" Button Logic (The Runaway) ---
+        
+        // Helper to check if two rectangles overlap
+        function isOverlapping(rect1, rect2) {
+            return !(rect1.right < rect2.left || 
+                     rect1.left > rect2.right || 
+                     rect1.bottom < rect2.top || 
+                     rect1.top > rect2.bottom);
+        }
+
+        function moveButton() {
+            // 1. Get dimensions of things we want to avoid
+            const yesRect = yesBtn.getBoundingClientRect();
+            const textRect = questionText.getBoundingClientRect();
+            
+            // 2. Get viewport size
+            const winWidth = window.innerWidth;
+            const winHeight = window.innerHeight;
+            
+            // 3. Get button size
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+
+            let newX, newY;
+            let safe = false;
+            let attempts = 0;
+
+            // 4. Retry loop to find a safe spot
+            while (!safe && attempts < 50) {
+                // Generate random position with padding (20px from edge)
+                newX = Math.random() * (winWidth - btnWidth - 40) + 20;
+                newY = Math.random() * (winHeight - btnHeight - 40) + 20;
+
+                // Create a virtual rectangle for the new position
+                const newRect = {
+                    left: newX,
+                    right: newX + btnWidth,
+                    top: newY,
+                    bottom: newY + btnHeight
+                };
+
+                // Check collisions
+                // We add extra padding to the checks so it doesn't touch the text/yes button
+                const paddedYesRect = {
+                    left: yesRect.left - 20, right: yesRect.right + 20,
+                    top: yesRect.top - 20, bottom: yesRect.bottom + 20
+                };
+                
+                const paddedTextRect = {
+                    left: textRect.left - 10, right: textRect.right + 10,
+                    top: textRect.top - 10, bottom: textRect.bottom + 10
+                };
+
+                if (!isOverlapping(newRect, paddedYesRect) && 
+                    !isOverlapping(newRect, paddedTextRect)) {
+                    safe = true;
+                }
+                attempts++;
+            }
+
+            // 5. Apply the new position
+            // We switch to fixed positioning so it moves relative to the screen
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = `${newX}px`;
+            noBtn.style.top = `${newY}px`;
+
+            // 6. Make "Yes" button grow
+            yesScale += 0.15;
+            yesBtn.style.transform = `scale(${yesScale})`;
+        }
+
+        // Add events for both Desktop (mouseover) and Mobile (touchstart)
+        noBtn.addEventListener('mouseover', moveButton);
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent clicking
+            moveButton();
+        });
+
+        // --- "Yes" Button Logic ---
+        yesBtn.addEventListener('click', () => {
+            proposalScreen.style.display = 'none';
+            celebrationScreen.style.display = 'block';
+            startConfetti();
+        });
+
+        // --- Celebration Confetti ---
+        function startConfetti() {
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                // Random properties
+                const colors = ['#ff0000', '#ff69b4', '#ffd700', '#ff1493'];
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDuration = Math.random() * 2 + 2 + 's';
+                confetti.style.opacity = Math.random();
+                
+                // Random shape (circle or square)
+                if (Math.random() > 0.5) confetti.style.borderRadius = '50%';
+                
+                document.body.appendChild(confetti);
+                
+                // Cleanup
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+    </script>
+</body>
+</html>
